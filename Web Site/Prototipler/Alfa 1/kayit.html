@@ -1,0 +1,170 @@
+// data/kayit.html olacak 
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesaj Datası</title>
+    <link rel="icon" href="ikon.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .message-item {
+            background-color: #f8f8f8;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .message-item:hover {
+            background-color: #e1e1e1;
+        }
+
+        .delete-button {
+            background-color: transparent;
+            border: none;
+            color: #ff4d4d;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .delete-button:hover {
+            color: #e60000;
+        }
+
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mesaj Datası</h1>
+
+        <!-- İndir Butonu -->
+        <a href="#" class="download-btn" onclick="downloadMessages()">Bütün Kayıtları TXT Olarak İndir</a>
+
+        <div id="messageList">
+            <!-- Mesajlar burada görünecek -->
+        </div>
+        <p><a href="index.html">Dataya veri ekle</a></p>
+    </div>
+
+    <script>
+        // Sayfa yüklendiğinde mesajları yerel depolamadan yükle
+        window.onload = function() {
+            displayMessages();
+        };
+
+        // Mesajları görüntüle
+        function displayMessages() {
+            var messageList = document.getElementById('messageList');
+            messageList.innerHTML = ''; // Listeyi temizle
+
+            var messages = JSON.parse(localStorage.getItem('messages')) || [];
+            if (messages.length === 0) {
+                messageList.innerHTML = '<p>Henüz kaydedilmiş mesaj yok.</p>';
+            } else {
+                messages.forEach(function(message, index) {
+                    var div = document.createElement('div');
+                    div.className = 'message-item';
+
+                    // Mesajı ekle
+                    div.textContent = message;
+
+                    // Silme butonunu oluştur
+                    var deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete-button';
+                    deleteButton.textContent = '×';
+                    deleteButton.onclick = function() {
+                        deleteMessage(index);
+                    };
+
+                    // Silme butonunu mesajın içine ekle
+                    div.appendChild(deleteButton);
+                    messageList.appendChild(div);
+                });
+            }
+        }
+
+        // Mesajı silme fonksiyonu
+        function deleteMessage(index) {
+            var messages = JSON.parse(localStorage.getItem('messages')) || [];
+            messages.splice(index, 1); // Mesajı listeden çıkar
+            localStorage.setItem('messages', JSON.stringify(messages)); // Yeni listeyi kaydet
+            displayMessages(); // Listeyi tekrar görüntüle
+        }
+
+        // Tüm mesajları .txt olarak indir
+        function downloadMessages() {
+            var messages = JSON.parse(localStorage.getItem('messages')) || [];
+
+            if (messages.length === 0) {
+                alert('Henüz kaydedilmiş mesaj yok.');
+                return;
+            }
+
+            // Mesajları birleştir
+            var textToSave = messages.join('\n');  // Her mesajı yeni bir satıra ekle
+
+            // Blob nesnesi oluştur
+            var blob = new Blob([textToSave], { type: 'text/plain' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'mesajlar.txt';  // İndirilecek dosya adı
+            link.click();  // İndirme işlemi başlat
+        }
+    </script>
+</body>
+</html>
